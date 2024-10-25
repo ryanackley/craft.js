@@ -23,13 +23,15 @@ export type Options = {
     error: string;
     transition: string;
     thickness: number;
+    className: string;
+    style: React.CSSProperties;
   }>;
   handlers: (store: EditorStore) => CoreEventHandlers;
   normalizeNodes: (
     state: EditorState,
     previousState: EditorState,
     actionPerformed: Delete<
-      PatchListenerAction<EditorState, typeof ActionMethodsWithConfig>,
+      PatchListenerAction<typeof ActionMethodsWithConfig>,
       'patches'
     >,
     query: QueryCallbacksFor<typeof QueryMethods>
@@ -49,7 +51,6 @@ export type EditorState = {
   nodes: Nodes;
   events: EditorEvents;
   options: Options;
-  handlers: CoreEventHandlers;
   indicator: Indicator;
 };
 

@@ -1,7 +1,7 @@
 import { useEditor } from '@craftjs/core';
 import { Layers } from '@craftjs/layers';
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import { styled } from 'styled-components';
 
 import { SidebarItem } from './SidebarItem';
 
@@ -9,11 +9,11 @@ import CustomizeIcon from '../../../../public/icons/customize.svg';
 import LayerIcon from '../../../../public/icons/layers.svg';
 import { Toolbar } from '../../Toolbar';
 
-export const SidebarDiv = styled.div<{ enabled: boolean }>`
+export const SidebarDiv = styled.div<{ $enabled: boolean }>`
   width: 280px;
-  opacity: ${(props) => (props.enabled ? 1 : 0)};
+  opacity: ${(props) => (props.$enabled ? 1 : 0)};
   background: #fff;
-  margin-right: ${(props) => (props.enabled ? 0 : -280)}px;
+  margin-right: ${(props) => (props.$enabled ? 0 : -280)}px;
 `;
 
 const CarbonAdsContainer = styled.div`
@@ -61,23 +61,27 @@ const CarbonAdsContainer = styled.div`
   }
 
   #carbonads .carbon-img {
-    display: block;
+    display: flex;
+    align-items: center;
     margin: 0;
     line-height: 1;
+    max-width: 30%;
   }
 
   #carbonads .carbon-img img {
     display: block;
+    max-width: 100% !important;
   }
 
   #carbonads .carbon-text {
-    font-size: 11px;
+    font-size: 12px;
     padding: 10px;
     margin-bottom: 16px;
     line-height: 1.5;
-    text-align: left;
+    text-align: right;
     color: #333333;
     font-weight: 400;
+    flex: 1;
   }
 
   #carbonads .carbon-poweredby {
@@ -87,7 +91,7 @@ const CarbonAdsContainer = styled.div`
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
-    font-size: 8px;
+    font-size: 9px;
     line-height: 1;
     position: absolute;
     bottom: 0;
@@ -95,6 +99,41 @@ const CarbonAdsContainer = styled.div`
     color: #8f8f8f;
   }
 `;
+
+const Carbonads = () => {
+  const domRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const { current: dom } = domRef;
+
+    if (!dom) {
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.setAttribute('type', 'text/javascript');
+    script.setAttribute('async', 'true');
+
+    script.setAttribute(
+      'src',
+      '//cdn.carbonads.com/carbon.js?serve=CEAI453N&placement=craftjsorg'
+    );
+    script.setAttribute('id', '_carbonads_js');
+
+    dom.appendChild(script);
+
+    return () => {
+      const ad = dom.querySelector('#carbonads');
+      if (ad) {
+        dom.removeChild(ad);
+      }
+
+      dom.removeChild(script);
+    };
+  }, []);
+
+  return <CarbonAdsContainer ref={domRef} />;
+};
 
 export const Sidebar = () => {
   const [layersVisible, setLayerVisible] = useState(true);
@@ -104,7 +143,7 @@ export const Sidebar = () => {
   }));
 
   return (
-    <SidebarDiv enabled={enabled} className="sidebar transition bg-white w-2">
+    <SidebarDiv $enabled={enabled} className="sidebar transition bg-white w-2">
       <div className="flex flex-col h-full">
         <SidebarItem
           icon={CustomizeIcon}
@@ -126,14 +165,7 @@ export const Sidebar = () => {
             <Layers expandRootOnLoad={true} />
           </div>
         </SidebarItem>
-        <CarbonAdsContainer>
-          <script
-            async
-            type="text/javascript"
-            src="//cdn.carbonads.com/carbon.js?serve=CEAI453N&placement=craftjsorg"
-            id="_carbonads_js"
-          ></script>
-        </CarbonAdsContainer>
+        <Carbonads />
       </div>
     </SidebarDiv>
   );

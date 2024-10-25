@@ -9,6 +9,7 @@ export type UserComponentConfig<T> = {
   related: Partial<NodeRelated>;
   props: Partial<T>;
   custom: Record<string, any>;
+  info: Record<string, any>;
   isCanvas: boolean;
 
   // TODO: Deprecate
@@ -26,6 +27,7 @@ export type NodeEventTypes = 'selected' | 'dragged' | 'hovered';
 export type Node = {
   id: NodeId;
   data: NodeData;
+  info: Record<string, any>;
   events: Record<NodeEventTypes, boolean>;
   dom: HTMLElement | null;
   related: Record<string, React.ElementType>;
@@ -48,7 +50,7 @@ export type NodeData = {
   name: string;
   displayName: string;
   isCanvas: boolean;
-  parent: NodeId;
+  parent: NodeId | null;
   linkedNodes: Record<string, NodeId>;
   nodes: NodeId[];
   hidden: boolean;

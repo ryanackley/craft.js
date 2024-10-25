@@ -510,7 +510,7 @@ export const CardBottom = ({children}) => {
 CardBottom.craft = {
   rules: {
     // Only accept Buttons
-    canMoveIn : (incomingNode) => incomingNodes.every(incomingNode => incomingNode.data.type === Button)
+    canMoveIn : (incomingNodes) => incomingNodes.every(incomingNode => incomingNode.data.type === Button)
   }
 }
 
@@ -553,7 +553,7 @@ Let's go back to our Toolbox component and modify it so that dragging those butt
 
 The `useEditor` also provides `connectors`; the one we are interested in right now is `create` which attaches a drag handler to the  DOM specified in its first argument and creates the element specified in its second arguement.
 
-```jsx {20,23,26}
+```jsx {20,23,26,29}
 // components/Toolbox.js
 import React from "react";
 import { Box, Typography, Grid, Button as MaterialButton } from "@material-ui/core";
@@ -635,8 +635,8 @@ The `useNode` hook accepts a collector function which can be used to retrieve st
 // components/user/Text.js
 export const Text = ({text, fontSize}) => {
   const { connectors: {connect, drag}, hasSelectedNode, hasDraggedNode, actions: {setProp} } = useNode((state) => ({
-    hasSelectedNode: state.events.selected.size > 0,
-    hasDraggedNode: state.events.dragged.size > 0
+    hasSelectedNode: state.events.selected,
+    hasDraggedNode: state.events.dragged
   }));
 
   const [editable, setEditable] = useState(false);
@@ -668,8 +668,8 @@ import {Slider, FormControl, FormLabel} from "@material-ui/core";
 
 export const Text= ({text, fontSize, textAlign}) => {
   const { connectors: {connect, drag}, hasSelectedNode, hasDraggedNode, actions: {setProp} } = useNode((state) => ({
-    hasSelectedNode: state.events.selected.size > 0,
-    hasDraggedNode: state.events.dragged.size > 0
+    hasSelectedNode: state.events.selected,
+    hasDraggedNode: state.events.dragged
   }));
 
   ...

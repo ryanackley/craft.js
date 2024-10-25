@@ -1,20 +1,22 @@
 import React from 'react';
-import styled from 'styled-components';
+import { styled } from 'styled-components';
 
 import Arrow from '../../../../public/icons/arrow.svg';
 
-const SidebarItemDiv = styled.div<{ visible?: boolean; height?: string }>`
+const SidebarItemDiv = styled.div<{ $visible?: boolean; $height?: string }>`
   height: ${(props) =>
-    props.visible && props.height && props.height !== 'full'
-      ? `${props.height}`
+    props.$visible && props.$height && props.$height !== 'full'
+      ? `${props.$height}`
       : 'auto'};
   flex: ${(props) =>
-    props.visible && props.height && props.height === 'full' ? `1` : 'unset'};
+    props.$visible && props.$height && props.$height === 'full'
+      ? `1`
+      : 'unset'};
   color: #545454;
 `;
 
-const Chevron = styled.a<{ visible: boolean }>`
-  transform: rotate(${(props) => (props.visible ? 180 : 0)}deg);
+const Chevron = styled.a<{ $visible: boolean }>`
+  transform: rotate(${(props) => (props.$visible ? 180 : 0)}deg);
   svg {
     width: 8px;
     height: 8px;
@@ -27,6 +29,7 @@ export type SidebarItemProps = {
   icon: string;
   visible?: boolean;
   onChange?: (bool: boolean) => void;
+  children?: React.ReactNode;
 };
 
 const HeaderDiv = styled.div`
@@ -46,7 +49,11 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
   onChange,
 }) => {
   return (
-    <SidebarItemDiv visible={visible} height={height} className="flex flex-col">
+    <SidebarItemDiv
+      $visible={visible}
+      $height={height}
+      className="flex flex-col"
+    >
       <HeaderDiv
         onClick={() => {
           if (onChange) onChange(!visible);
@@ -59,7 +66,7 @@ export const SidebarItem: React.FC<SidebarItemProps> = ({
           {React.createElement(icon, { className: 'w-4 h-4 mr-2' })}
           <h2 className="text-xs uppercase">{title}</h2>
         </div>
-        <Chevron visible={visible}>
+        <Chevron $visible={visible}>
           <Arrow />
         </Chevron>
       </HeaderDiv>

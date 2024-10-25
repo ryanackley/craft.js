@@ -1,6 +1,5 @@
 import { ERROR_RESOLVER_NOT_AN_OBJECT, HISTORY_ACTIONS } from '@craftjs/utils';
-import { pickBy } from 'lodash';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useRef } from 'react';
 import invariant from 'tiny-invariant';
 
 import { EditorContext } from './EditorContext';
@@ -9,42 +8,28 @@ import { useEditorStore } from './store';
 import { Events } from '../events';
 import { Options } from '../interfaces';
 
+type EditorProps = Partial<Options> & {
+  children?: React.ReactNode;
+};
+
 /**
  * A React Component that provides the Editor context
  */
-export const Editor: React.FC<React.PropsWithChildren<Partial<Options>>> = ({
-  children,
-  onRender,
-  onNodesChange,
-  onBeforeMoveEnd,
-  resolver,
-  enabled,
-  indicator,
-}) => {
+export const Editor = ({ children, ...options }: EditorProps) => {
   // we do not want to warn the user if no resolver was supplied
-  if (resolver !== undefined) {
+  if (options.resolver !== undefined) {
     invariant(
-      typeof resolver === 'object' && !Array.isArray(resolver),
+      typeof options.resolver === 'object' &&
+        !Array.isArray(options.resolver) &&
+        options.resolver !== null,
       ERROR_RESOLVER_NOT_AN_OBJECT
     );
   }
 
-  const options = useMemo(() => {
-    return pickBy(
-      {
-        onRender,
-        onNodesChange,
-        onBeforeMoveEnd,
-        resolver,
-        enabled,
-        indicator,
-      },
-      (value) => value !== undefined
-    );
-  }, [enabled, indicator, onBeforeMoveEnd, onNodesChange, onRender, resolver]);
+  const optionsRef = useRef(options);
 
   const context = useEditorStore(
-    options,
+    optionsRef.current,
     (state, previousState, actionPerformedWithPatches, query, normalizer) => {
       if (!actionPerformedWithPatches) {
         return;
@@ -88,13 +73,23 @@ export const Editor: React.FC<React.PropsWithChildren<Partial<Options>>> = ({
     }
   );
 
+  // sync enabled prop with editor store options
   useEffect(() => {
-    if (context && options) {
-      context.actions.setOptions((editorOptions) => {
-        Object.assign(editorOptions, options);
-      });
+    if (!context) {
+      return;
     }
-  }, [context, options]);
+
+    if (
+      options.enabled === undefined ||
+      context.query.getOptions().enabled === options.enabled
+    ) {
+      return;
+    }
+
+    context.actions.setOptions((editorOptions) => {
+      editorOptions.enabled = options.enabled;
+    });
+  }, [context, options.enabled]);
 
   useEffect(() => {
     context.subscribe(
@@ -107,9 +102,13 @@ export const Editor: React.FC<React.PropsWithChildren<Partial<Options>>> = ({
     );
   }, [context]);
 
-  return context ? (
+  if (!context) {
+    return null;
+  }
+
+  return (
     <EditorContext.Provider value={context}>
       <Events>{children}</Events>
     </EditorContext.Provider>
-  ) : null;
+  );
 };
